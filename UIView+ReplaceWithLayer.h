@@ -10,6 +10,6 @@
 
 @interface UIView (ReplaceWithLayer)
 
-- (void)setReplaceWithLayer:(BOOL)replaceWithLayer;
+@property (nonatomic, assign) BOOL replaceWithLayer;
 
 @end

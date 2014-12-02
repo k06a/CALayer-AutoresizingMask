@@ -8,10 +8,18 @@
 
 #import <objc/runtime.h>
 #import <JRSwizzle/JRSwizzle.h>
+#import <ObjcAssociatedObjectHelpers/ObjcAssociatedObjectHelpers.h>
 #import "UIView+ReplaceWithLayer.h"
 #import "CALayer+AutoresizingMask.h"
 
 @implementation UIView (ReplaceWithLayer)
+
+SYNTHESIZE_ASC_PRIMITIVE_BLOCK(replaceWithLayer, setReplaceWithLayer, BOOL, ^{}, ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.replaceWithLayer)
+            [self replace];
+    });
+})
 
 + (void)load
 {
@@ -27,19 +35,29 @@
     [self.layer layoutSublayersRecursive];
 }
 
-- (void)setReplaceWithLayer:(BOOL)replaceWithLayer
+- (void)replace
 {
     for (UIView *subview in self.subviews)
-        [subview setReplaceWithLayer:YES];
+        [subview replace];
     
     self.layer.view = self;
     self.layer.delegate = nil;
     self.layer.autoresizingMask = self.autoresizingMask;
     self.layer.superlayerSize = self.layer.superlayer.bounds.size;
     
-    CALayer *superlayer = self.layer.superlayer;
-    [self removeFromSuperview];
-    [superlayer addSublayer:self.layer];
+    // Replacing views by layers in hierarhy and keeping z-order
+    dispatch_async(dispatch_get_main_queue(), ^{
+        for (UIView *subview in self.superview.subviews) {
+            if (subview.replaceWithLayer) {
+                CALayer *layer = subview.layer;
+                CALayer *superlayer = layer.superlayer;
+                
+                NSInteger i = [superlayer.sublayers indexOfObject:layer];
+                [subview removeFromSuperview];
+                [superlayer insertSublayer:layer atIndex:i];
+            }
+        }
+    });
 }
 
 @end

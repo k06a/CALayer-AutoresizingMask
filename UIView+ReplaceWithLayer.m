@@ -9,6 +9,7 @@
 #import <objc/runtime.h>
 #import <JRSwizzle/JRSwizzle.h>
 #import <ObjcAssociatedObjectHelpers/ObjcAssociatedObjectHelpers.h>
+#import "LayoutLayerDelegateWrapper.h"
 #import "UIView+ReplaceWithLayer.h"
 #import "CALayer+AutoresizingMask.h"
 
@@ -41,7 +42,7 @@ SYNTHESIZE_ASC_PRIMITIVE_BLOCK(replaceWithLayer, setReplaceWithLayer, BOOL, ^{},
         [subview replace];
     
     self.layer.view = self;
-    self.layer.delegate = nil;
+    self.layer.delegate = [[LayoutLayerDelegateWrapper alloc] initWithDelegate:self.layer.delegate];
     self.layer.autoresizingMask = self.autoresizingMask;
     self.layer.superlayerSize = self.layer.superlayer.bounds.size;
     
@@ -53,7 +54,11 @@ SYNTHESIZE_ASC_PRIMITIVE_BLOCK(replaceWithLayer, setReplaceWithLayer, BOOL, ^{},
                 CALayer *superlayer = layer.superlayer;
                 
                 NSInteger i = [superlayer.sublayers indexOfObject:layer];
+                id delegate = layer.delegate;
                 [subview removeFromSuperview];
+                layer.view = subview;
+                layer.delegate = delegate;
+                [layer.delegate retainSelfCount];
                 [superlayer insertSublayer:layer atIndex:i];
             }
         }

@@ -24,6 +24,7 @@ SYNTHESIZE_ASC_OBJ(view, setView)
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         [CALayer jr_swizzleMethod:@selector(removeFromSuperlayer) withMethod:@selector(xxx_removeFromSuperlayer) error:NULL];
+        [CALayer jr_swizzleMethod:@selector(layoutSublayers) withMethod:@selector(xxx_layoutSublayers) error:NULL];
     });
 }
 
@@ -35,15 +36,17 @@ SYNTHESIZE_ASC_OBJ(view, setView)
     self.view = nil;
 }
 
+- (void)xxx_layoutSublayers
+{
+    [self layoutSublayersRecursive];
+    [self xxx_layoutSublayers];
+}
+
 - (void)layoutSublayersRecursive
 {
     UIViewAutoresizing mask = self.autoresizingMask;
     if (mask != UIViewAutoresizingNone)
     {
-        if (self.superlayer.bounds.size.width == 0 ||
-            self.superlayer.bounds.size.height == 0)
-            return;
-        
         CGFloat dx = self.superlayer.bounds.size.width - self.superlayerSize.width;
         CGFloat dy = self.superlayer.bounds.size.height - self.superlayerSize.height;
 

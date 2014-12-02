@@ -22,20 +22,6 @@ SYNTHESIZE_ASC_PRIMITIVE_BLOCK(replaceWithLayer, setReplaceWithLayer, BOOL, ^{},
     });
 })
 
-+ (void)load
-{
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [UIView jr_swizzleMethod:@selector(layoutSubviews) withMethod:@selector(xxx_layoutSubviews) error:NULL];
-    });
-}
-
-- (void)xxx_layoutSubviews
-{
-    [self xxx_layoutSubviews];
-    [self.layer layoutSublayersRecursive];
-}
-
 - (void)replace
 {
     for (UIView *subview in self.subviews)
@@ -53,13 +39,13 @@ SYNTHESIZE_ASC_PRIMITIVE_BLOCK(replaceWithLayer, setReplaceWithLayer, BOOL, ^{},
                 CALayer *layer = subview.layer;
                 CALayer *superlayer = layer.superlayer;
                 
-                NSInteger i = [superlayer.sublayers indexOfObject:layer];
+                NSUInteger i = [superlayer.sublayers indexOfObject:layer];
                 id delegate = layer.delegate;
                 [subview removeFromSuperview];
                 layer.view = subview;
                 layer.delegate = delegate;
                 [layer.delegate retainSelfCount];
-                [superlayer insertSublayer:layer atIndex:i];
+                [superlayer insertSublayer:layer atIndex:(unsigned)i];
             }
         }
     });

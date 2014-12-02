@@ -1,5 +1,5 @@
 //
-//  LayerDelegateWithoutLayoutWrapper.h
+//  LayoutLayerDelegateWrapper.h
 //  SecretSB
 //
 //  Created by Антон Буков on 03.12.14.

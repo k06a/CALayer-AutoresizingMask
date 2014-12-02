@@ -7,6 +7,7 @@
 //
 
 #import <QuartzCore/QuartzCore.h>
+#import "CALayer+AutoresizingMask.h"
 #import "LayoutLayerDelegateWrapper.h"
 
 @interface LayoutLayerDelegateWrapper ()

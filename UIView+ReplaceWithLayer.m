@@ -30,7 +30,6 @@ SYNTHESIZE_ASC_PRIMITIVE_BLOCK(replaceWithLayer, setReplaceWithLayer, BOOL, ^{},
     self.layer.view = self;
     self.layer.delegate = [[LayoutLayerDelegateWrapper alloc] initWithDelegate:self.layer.delegate];
     self.layer.autoresizingMask = self.autoresizingMask;
-    self.layer.superlayerSize = self.layer.superlayer.bounds.size;
     
     // Replacing views by layers in hierarhy and keeping z-order
     dispatch_async(dispatch_get_main_queue(), ^{

@@ -38,6 +38,12 @@ SYNTHESIZE_ASC_OBJ(view, setView)
 
 - (void)xxx_layoutSublayers
 {
+    if (self.superlayer &&
+        self.superlayerSize.width == 0 &&
+        self.superlayerSize.height == 0)
+    {
+        self.superlayerSize = self.superlayer.bounds.size;
+    }
     [self layoutSublayersRecursive];
     [self xxx_layoutSublayers];
 }

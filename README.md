@@ -29,7 +29,7 @@ Now all `CALayer`s have property `autoresizingMask` with type `UIVIewAutoresizin
 How it works?
 ==========================
 
-It just implements siple algorythm:
+It just implements simple algorithm:
 
 Increase `origin` and `size` of `self.frame` proportionaly to `superview`s `frame` increment divided by number of flexible elements on each axe. That is all!
 

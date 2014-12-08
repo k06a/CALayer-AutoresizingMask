@@ -45,7 +45,8 @@ SYNTHESIZE_ASC_OBJ(view, setView)
         self.superlayerSize = self.superlayer.bounds.size;
     }
     [self layoutSublayersRecursive];
-    [self xxx_layoutSublayers];
+    if (self.view == nil)
+        [self xxx_layoutSublayers];
 }
 
 - (void)layoutSublayersRecursive
@@ -77,7 +78,8 @@ SYNTHESIZE_ASC_OBJ(view, setView)
     
     self.superlayerSize = self.superlayer.bounds.size;
     for (CALayer *sublayer in self.sublayers)
-        [sublayer layoutSublayersRecursive];
+        if (sublayer.view)
+            [sublayer layoutSublayersRecursive];
 }
 
 @end

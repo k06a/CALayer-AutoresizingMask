@@ -16,7 +16,6 @@
 @implementation CALayer (AutoresizingMask)
 
 SYNTHESIZE_ASC_PRIMITIVE(autoresizingMask, setAutoresizingMask, UIViewAutoresizing)
-SYNTHESIZE_ASC_PRIMITIVE(superlayerSize, setSuperlayerSize, CGSize)
 SYNTHESIZE_ASC_OBJ(view, setView)
 
 + (void)load
@@ -24,62 +23,53 @@ SYNTHESIZE_ASC_OBJ(view, setView)
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         [CALayer jr_swizzleMethod:@selector(removeFromSuperlayer) withMethod:@selector(xxx_removeFromSuperlayer) error:NULL];
-        [CALayer jr_swizzleMethod:@selector(layoutSublayers) withMethod:@selector(xxx_layoutSublayers) error:NULL];
+        [CALayer jr_swizzleMethod:@selector(setBounds:) withMethod:@selector(xxx_setBounds:) error:NULL];
     });
 }
 
 - (void)xxx_removeFromSuperlayer
 {
     [self xxx_removeFromSuperlayer];
-    if ([self.delegate respondsToSelector:@selector(releaseSelfCount)])
-        [self.delegate releaseSelfCount];
+    LayoutLayerDelegateWrapper *wrapper = self.delegate;
+    if ([wrapper isKindOfClass:[LayoutLayerDelegateWrapper class]]) {
+        self.delegate = wrapper.delegate;
+        [wrapper releaseSelfCount];
+    }
     self.view = nil;
 }
 
-- (void)xxx_layoutSublayers
+- (void)xxx_setBounds:(CGRect)bounds
 {
-    if (self.superlayer &&
-        self.superlayerSize.width == 0 &&
-        self.superlayerSize.height == 0)
-    {
-        self.superlayerSize = self.superlayer.bounds.size;
-    }
-    [self layoutSublayersRecursive];
-    if (self.view == nil)
-        [self xxx_layoutSublayers];
+    for (CALayer *layer in self.sublayers)
+        if (layer.autoresizingMask != UIViewAutoresizingNone)
+            [layer autoresizeWhileParentSize:self.bounds.size toSize:bounds.size];
+    [self xxx_setBounds:bounds];
 }
 
-- (void)layoutSublayersRecursive
+- (void)autoresizeWhileParentSize:(CGSize)size toSize:(CGSize)newSize
 {
     UIViewAutoresizing mask = self.autoresizingMask;
-    if (mask != UIViewAutoresizingNone)
-    {
-        CGFloat dx = self.superlayer.bounds.size.width - self.superlayerSize.width;
-        CGFloat dy = self.superlayer.bounds.size.height - self.superlayerSize.height;
-
-        dx /= ((mask & UIViewAutoresizingFlexibleLeftMargin)?1:0)
-            + ((mask & UIViewAutoresizingFlexibleWidth)?1:0)
-            + ((mask & UIViewAutoresizingFlexibleRightMargin)?1:0);
-        dy /= ((mask & UIViewAutoresizingFlexibleTopMargin)?1:0)
-            + ((mask & UIViewAutoresizingFlexibleHeight)?1:0)
-            + ((mask & UIViewAutoresizingFlexibleBottomMargin)?1:0);
-        
-        CGFloat scale = [UIScreen mainScreen].scale;
-        if ((abs(dx) < 1.0/scale) && (abs(dy) < 1.0/scale))
-            return;
-        
-        CGRect frame = self.frame;
-        frame.origin.x += (mask & UIViewAutoresizingFlexibleLeftMargin)?dx:0;
-        frame.origin.y += (mask & UIViewAutoresizingFlexibleTopMargin)?dy:0;
-        frame.size.width += (mask & UIViewAutoresizingFlexibleWidth)?dx:0;
-        frame.size.height += (mask & UIViewAutoresizingFlexibleHeight)?dy:0;
-        self.frame = frame;
-    }
     
-    self.superlayerSize = self.superlayer.bounds.size;
-    for (CALayer *sublayer in self.sublayers)
-        if (sublayer.view)
-            [sublayer layoutSublayersRecursive];
+    CGFloat dx = newSize.width - size.width;
+    CGFloat dy = newSize.height - size.height;
+
+    dx /= ((mask & UIViewAutoresizingFlexibleLeftMargin)?1:0)
+        + ((mask & UIViewAutoresizingFlexibleWidth)?1:0)
+        + ((mask & UIViewAutoresizingFlexibleRightMargin)?1:0);
+    dy /= ((mask & UIViewAutoresizingFlexibleTopMargin)?1:0)
+        + ((mask & UIViewAutoresizingFlexibleHeight)?1:0)
+        + ((mask & UIViewAutoresizingFlexibleBottomMargin)?1:0);
+    
+    CGFloat scale = [UIScreen mainScreen].scale;
+    if ((abs(dx) < 1.0/scale) && (abs(dy) < 1.0/scale))
+        return;
+    
+    CGRect frame = self.frame;
+    frame.origin.x += (mask & UIViewAutoresizingFlexibleLeftMargin)?dx:0;
+    frame.origin.y += (mask & UIViewAutoresizingFlexibleTopMargin)?dy:0;
+    frame.size.width += (mask & UIViewAutoresizingFlexibleWidth)?dx:0;
+    frame.size.height += (mask & UIViewAutoresizingFlexibleHeight)?dy:0;
+    [self setFrame:frame];
 }
 
 @end

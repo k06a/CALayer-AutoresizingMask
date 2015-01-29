@@ -12,9 +12,6 @@
 @interface CALayer (AutoresizingMask)
 
 @property (nonatomic, assign) UIViewAutoresizing autoresizingMask;
-@property (nonatomic, assign) CGSize superlayerSize;
 @property (nonatomic, strong) UIView *view;
-
-- (void)layoutSublayersRecursive;
 
 @end

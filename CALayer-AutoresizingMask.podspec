@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "CALayer-AutoresizingMask"
-  s.version      = "0.0.6"
+  s.version      = "0.0.7"
   s.summary      = "Add UIViewAutoresize support to iOS CALayers and fast UIView to CALayer conversion method"
 
   s.description  = <<-DESC
@@ -72,7 +72,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/k06a/CALayer-AutoresizingMask.git", :tag => "0.0.6" }
+  s.source       = { :git => "https://github.com/k06a/CALayer-AutoresizingMask.git", :tag => "0.0.7" }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #

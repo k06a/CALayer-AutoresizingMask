@@ -13,7 +13,7 @@ pod 'CALayer-AutoresizingMask'
 Usage
 ==========================
 
-1. Not use Autolayout in this storyboard or xib and use autoresizing mask you need.
+1. Do not use Autolayout in this `storyboard` or `XIB` and use autoresizing mask you need.
 
  <img src="https://raw.github.com/k06a/CALayer-AutoresizingMask/master/autolayout.png" width="30%" />
  <img src="https://raw.github.com/k06a/CALayer-AutoresizingMask/master/autoresizing.png" width="30%" />
@@ -24,14 +24,14 @@ Usage
 
 3. Use your old `IBOutlet`s to views to access visible layers :)
 
- Now all `CALayer`s have property `autoresizingMask` with type `UIVIewAutoresizing`. You can use it too!
+ Now all `CALayer`s have property `autoresizingMask` with type `UIViewAutoresizing`. You can use it too!
 
 How it works?
 ==========================
 
 It just implements simple algorithm:
 
-Increase `origin` and `size` of `self.frame` proportionaly to `superview`s `frame` increment divided by number of flexible elements on each axe. That is all!
+Increase `origin` and `size` of `self.frame` proportionaly to `superview`s `frame` increment divided by number of flexible elements on each axis. That is all!
 
 ```objective-c
 CGFloat dx = self.superlayer.bounds.size.width - self.superlayerSize.width;
